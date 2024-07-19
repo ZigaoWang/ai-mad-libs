@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mad Libs Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        #app {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .story {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e0f7fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Mad Libs Game</h1>
+        <div id="input-container">
+            <label for="word-type">Word Type:</label>
+            <input type="text" id="word-type" placeholder="e.g., noun, verb, adjective">
+            <label for="word">Word:</label>
+            <input type="text" id="word" placeholder="Enter the word">
+            <button id="add-word">Add Word</button>
+        </div>
+        <div id="word-list"></div>
+        <button id="generate-story">Generate Story</button>
+        <div id="story" class="story"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputContainer = document.getElementById('input-container');
+            const wordListContainer = document.getElementById('word-list');
+            const generateStoryButton = document.getElementById('generate-story');
+            const storyContainer = document.getElementById('story');
+
+            let words = {};
+
+            document.getElementById('add-word').addEventListener('click', () => {
+                const wordType = document.getElementById('word-type').value.trim();
+                const word = document.getElementById('word').value.trim();
+
+                if (!wordType || !word) {
+                    alert('Please enter both a word type and a word.');
+                    return;
+                }
+
+                if (!words[wordType]) {
+                    words[wordType] = [];
+                }
+
+                words[wordType].push(word);
+
+                const wordItem = document.createElement('div');
+                wordItem.innerText = `${wordType}: ${word}`;
+                wordListContainer.appendChild(wordItem);
+
+                document.getElementById('word-type').value = '';
+                document.getElementById('word').value = '';
+            });
+
+            generateStoryButton.addEventListener('click', () => {
+                fetch('/generate_story', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(words)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    storyContainer.innerText = data.story;
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+</body>
+</html>
